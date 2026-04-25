@@ -1,6 +1,16 @@
 // BudgetPlay — frontend logic
 // State, sliders, chart, Claude impact narrative, community heatmap.
 
+import {
+  fetchBudget,
+  fetchRegions,
+  postAnalyze,
+  postSubmit,
+  fetchCommunity,
+  postLetter,
+  postImportPdf,
+} from './lib/budgetplay-api.js';
+
 // ----- helpers -----
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => Array.from(document.querySelectorAll(sel));
@@ -29,12 +39,8 @@ let chartType = 'doughnut';
 
 // ----- bootstrap -----
 async function init() {
-  const [budgetRes, regionsRes] = await Promise.all([
-    fetch('/api/budget'),
-    fetch('/api/regions'),
-  ]);
-  const data = await budgetRes.json();
-  const { regions = [] } = await regionsRes.json();
+  const [data, regionsPayload] = await Promise.all([fetchBudget(), fetchRegions()]);
+  const { regions = [] } = regionsPayload;
 
   original = JSON.parse(JSON.stringify(data));
   current  = JSON.parse(JSON.stringify(data));
@@ -282,17 +288,15 @@ const requestNarrative = debounce(async () => {
   box.classList.add('narrative-loading');
 
   try {
-    const res = await fetch('/api/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        original: original.categories.map(c => ({ id: c.id, name: c.name, amount: c.amount, fundType: c.fundType })),
-        modified: current.categories.map(c => ({ id: c.id, name: c.name, amount: c.amount, fundType: c.fundType })),
-        totalBudget: current.totalBudget,
-        context: original.context && original.city ? { ...original.context, city: original.city, fiscalYear: original.fiscalYear } : {},
-      })
+    const json = await postAnalyze({
+      original: original.categories.map((c) => ({ id: c.id, name: c.name, amount: c.amount, fundType: c.fundType })),
+      modified: current.categories.map((c) => ({ id: c.id, name: c.name, amount: c.amount, fundType: c.fundType })),
+      totalBudget: current.totalBudget,
+      context:
+        original.context && original.city
+          ? { ...original.context, city: original.city, fiscalYear: original.fiscalYear }
+          : {},
     });
-    const json = await res.json();
     box.textContent = json.narrative || '(no narrative)';
     status.textContent = json.changes?.length ? `${json.changes.length} change(s)` : 'idle';
   } catch (err) {
@@ -345,22 +349,12 @@ async function submitVote() {
   btn.disabled = true;
   btn.textContent = 'Casting…';
   try {
-    const subRes = await fetch('/api/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        regionId,
-        budget: current.categories.map((c) => ({ id: c.id, amount: c.amount })),
-      }),
+    const subJson = await postSubmit({
+      regionId,
+      budget: current.categories.map((c) => ({ id: c.id, amount: c.amount })),
     });
-    const subJson = await subRes.json().catch(() => ({}));
-    if (!subRes.ok) {
-      throw new Error(subJson.error || subRes.statusText);
-    }
 
-    const q = new URLSearchParams({ region: regionId });
-    const res = await fetch(`/api/community?${q}`);
-    const data = await res.json();
+    const data = await fetchCommunity(regionId);
     showHeatmap(data, subJson.regionLabel || '');
   } catch (err) {
     alert('Submit failed: ' + err.message);
@@ -402,7 +396,7 @@ function showHeatmap(data, regionLabel = '') {
   const regionLine = regionLabel
     ? `Region: <span class="text-cyan-300 font-medium">${regionLabel}</span> · `
     : '';
-  $('#communityCount').innerHTML = `${regionLine}Based on <span class="text-amber-400 font-semibold">${data.count}</span> citizen submission${data.count === 1 ? '' : 's'} in this segment.<br><span class="text-slate-500">Top bar = official budget · Bottom bar = community average · <a href="/insights.html" class="text-cyan-500 hover:underline">Open Gov Pulse</a> for all regions</span>`;
+  $('#communityCount').innerHTML = `${regionLine}Based on <span class="text-amber-400 font-semibold">${data.count}</span> citizen submission${data.count === 1 ? '' : 's'} in this segment.<br><span class="text-slate-500">Top bar = official budget · Bottom bar = community average · <a href="insights.html" class="text-cyan-500 hover:underline">Open Gov Pulse</a> for all regions</span>`;
   $('#communityHeatmap').innerHTML = html;
   $('#modal').classList.add('show');
 }
@@ -426,17 +420,11 @@ async function generateLetter(isRegen) {
   btn.disabled = true;
 
   try {
-    const res = await fetch('/api/letter', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        regionId,
-        budget: current.categories.map((c) => ({ id: c.id, amount: c.amount })),
-        narrative: $('#narrative').textContent || '',
-      }),
+    const json = await postLetter({
+      regionId,
+      budget: current.categories.map((c) => ({ id: c.id, amount: c.amount })),
+      narrative: $('#narrative').textContent || '',
     });
-    const json = await res.json();
-    if (!res.ok) throw new Error(json.error || res.statusText);
 
     ta.value = json.letter || '(no letter returned)';
     ta.classList.remove('hidden');
@@ -516,13 +504,7 @@ async function importPdf() {
     });
 
     status.textContent = 'Sending to Claude — this can take 20-40 seconds for a real city budget…';
-    const res = await fetch('/api/import-budget-pdf', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ filename: file.name, pdf: base64 }),
-    });
-    const json = await res.json();
-    if (!res.ok) throw new Error(json.error || res.statusText);
+    const json = await postImportPdf({ filename: file.name, pdf: base64 });
 
     status.textContent = `✓ ${json.message || 'Budget imported. Reloading…'}`;
     // Re-hydrate everything from new /api/budget

@@ -1,3 +1,5 @@
+import { fetchInsights, postExecSummary } from './lib/budgetplay-api.js';
+
 const $ = (sel) => document.querySelector(sel);
 
 const fmtMoney = (n) => {
@@ -15,9 +17,7 @@ async function load() {
   const errEl = $('#loadError');
   errEl.classList.add('hidden');
   try {
-    const res = await fetch('/api/insights');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    cached = await res.json();
+    cached = await fetchInsights();
     if (cached.error) throw new Error(cached.error);
     render();
   } catch (e) {
@@ -108,13 +108,7 @@ async function generateExecSummary() {
   summaryEl.textContent = 'Drafting…';
   metaEl.textContent = '';
   try {
-    const res = await fetch('/api/exec-summary', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ regionId: selectedKey }),
-    });
-    const json = await res.json();
-    if (!res.ok) throw new Error(json.error || res.statusText);
+    const json = await postExecSummary({ regionId: selectedKey });
     summaryEl.textContent = json.summary || '(empty)';
     metaEl.textContent = json.cached
       ? 'Cached result · click again on another region for a fresh draft'

@@ -28,7 +28,35 @@ const REGIONS_PATH = path.join(DATA_DIR, 'regions.json');
 const SUBMISSIONS_PATH = path.join(DATA_DIR, 'submissions.json');
 
 app.use(express.json({ limit: '25mb' })); // 25mb so PDF base64 payloads fit
+
+// CORS: allows GitHub Pages (or any origin) to call this API if BUDGETPLAY_API_BASE is set in public/config.js
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Same JSON paths as GitHub Pages static build (public/lib/budgetplay-api.js)
+app.get('/data/budget.json', (req, res) => {
+  try {
+    const raw = fs.readFileSync(BUDGET_PATH, 'utf8');
+    res.type('application/json').send(raw);
+  } catch {
+    res.status(404).send('{}');
+  }
+});
+app.get('/data/regions.json', (req, res) => {
+  try {
+    const raw = fs.readFileSync(REGIONS_PATH, 'utf8');
+    res.type('application/json').send(raw);
+  } catch {
+    res.status(404).send('[]');
+  }
+});
 
 const client = process.env.ANTHROPIC_API_KEY
   ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
