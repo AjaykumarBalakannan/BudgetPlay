@@ -64,9 +64,16 @@ The repo includes a **snapshot** of the static site in the **`docs/`** folder (r
 1. Repo **Settings** → **Pages** → **Build and deployment** → **Deploy from a branch**.
 2. Branch: **`main`**, folder: **`/docs`**, Save.
 
-**Live site** (after the step above propagates, usually within a minute):
+**Live site** (after the step above propagates, usually 1–3 minutes):
 
 **[https://ajaykumarbalakannan.github.io/BudgetPlay/](https://ajaykumarbalakannan.github.io/BudgetPlay/)**
+
+### If you get 404 or a blank page
+
+1. **Pages source must be `/docs`**, not `/ (root)` — root has no `index.html`; the site lives in **`docs/`**.
+2. After changing Pages settings, wait a minute and hard-refresh (⌘⇧R).
+3. If the URL has no trailing slash and assets fail, we ship **`gh-pages-base.js`** to fix relative paths; run `npm run build:pages` and push an updated `docs/` if you changed `public/`.
+4. Confirm **Settings → Pages** shows “Your site is live at …” (not “Build failed”).
 
 - **Static mode** (no API key in the browser): sliders, demo-style impact text, Gov Pulse, and votes stored in **localStorage** (per browser—not a shared server database).
 - **Full backend**: run `npm start` anywhere, or deploy the Express app and set `window.BUDGETPLAY_API_BASE` in `public/config.js` to that origin (CORS is enabled on the server for API routes).
