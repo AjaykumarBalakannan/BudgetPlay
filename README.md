@@ -41,10 +41,22 @@ Submissions are stored in `data/submissions.json` (created on first submit; not 
 | GET | `/api/community?region=` | Average allocations (optional region filter) |
 | GET | `/api/insights` | Aggregated signals + recommendation text |
 
+## Publishing to GitHub
+
+The repo is not created automatically from this environment. On [GitHub](https://github.com/new):
+
+1. Repository name: **`BudgetPlay`** (owner: **AjaykumarBalakannan**).
+2. Leave **empty** (no README, no .gitignore) so the first push matches this history.
+
+Then in your project folder:
+
+```bash
+git remote add origin https://github.com/AjaykumarBalakannan/BudgetPlay.git
+git push -u origin main
+```
+
+Use SSH instead if you prefer: `git@github.com:AjaykumarBalakannan/BudgetPlay.git`.
+
 ## Author
 
 [Ajaykumar Balakannan](https://github.com/AjaykumarBalakannan)
-
-## License
-
-MIT (or adjust as you prefer.)
