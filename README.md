@@ -59,12 +59,12 @@ Use SSH instead if you prefer: `git@github.com:AjaykumarBalakannan/BudgetPlay.gi
 
 ## GitHub Pages (live demo)
 
-After the repo exists and this code is on `main`, enable **Actions → Pages** once:
+The repo includes a **snapshot** of the static site in the **`docs/`** folder (regenerate anytime with `npm run build:pages`).
 
-1. Repo **Settings** → **Pages** → **Build and deployment** → Source: **GitHub Actions**.
-2. Push to `main` (or run the **Deploy GitHub Pages** workflow manually). The workflow runs `npm run build:pages` and publishes the `docs/` output.
+1. Repo **Settings** → **Pages** → **Build and deployment** → **Deploy from a branch**.
+2. Branch: **`main`**, folder: **`/docs`**, Save.
 
-**Live site** (replace if your username or repo name differs):
+**Live site** (after the step above propagates, usually within a minute):
 
 **[https://ajaykumarbalakannan.github.io/BudgetPlay/](https://ajaykumarbalakannan.github.io/BudgetPlay/)**
 

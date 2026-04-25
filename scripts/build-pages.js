@@ -32,4 +32,4 @@ for (const f of ['budget.json', 'regions.json']) {
 
 fs.writeFileSync(path.join(docs, '.nojekyll'), '', 'utf8');
 
-console.log('Built', docs, '— enable GitHub Pages from Actions (see .github/workflows).');
+console.log('Built', docs, '— commit docs/ and set GitHub Pages source to branch main, folder /docs.');

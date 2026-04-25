@@ -6,4 +6,3 @@ node_modules/
 npm-debug.log*
 data/submissions.json
 data/submissions-archive*.json
-docs/
