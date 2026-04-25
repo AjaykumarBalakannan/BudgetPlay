@@ -1,0 +1,103 @@
+{
+  "city": "Cascade Heights, WA",
+  "fiscalYear": "FY 2026 (Adopted)",
+  "totalBudget": 3738000000,
+  "categories": [
+    {
+      "id": "police-department",
+      "name": "Police Department",
+      "amount": 480000000,
+      "fundType": "General",
+      "color": "#3b82f6"
+    },
+    {
+      "id": "fire-emergency-medical-services",
+      "name": "Fire & Emergency Medical Services",
+      "amount": 295000000,
+      "fundType": "General",
+      "color": "#ef4444"
+    },
+    {
+      "id": "public-schools",
+      "name": "Public Schools (K-12)",
+      "amount": 980000000,
+      "fundType": "Restricted",
+      "color": "#f59e0b"
+    },
+    {
+      "id": "streets-roads-bridges",
+      "name": "Streets, Roads & Bridges",
+      "amount": 410000000,
+      "fundType": "Restricted",
+      "color": "#78716c"
+    },
+    {
+      "id": "affordable-housing-homeless-services",
+      "name": "Affordable Housing & Homeless Services",
+      "amount": 215000000,
+      "fundType": "General",
+      "color": "#ec4899"
+    },
+    {
+      "id": "parks-recreation-open-space",
+      "name": "Parks, Recreation & Open Space",
+      "amount": 128000000,
+      "fundType": "General",
+      "color": "#10b981"
+    },
+    {
+      "id": "public-health-community-wellness",
+      "name": "Public Health & Community Wellness",
+      "amount": 245000000,
+      "fundType": "General",
+      "color": "#06b6d4"
+    },
+    {
+      "id": "solid-waste-recycling",
+      "name": "Solid Waste & Recycling",
+      "amount": 145000000,
+      "fundType": "Restricted",
+      "color": "#84cc16"
+    },
+    {
+      "id": "transit-light-rail-operations",
+      "name": "Transit & Light Rail Operations",
+      "amount": 310000000,
+      "fundType": "Restricted",
+      "color": "#8b5cf6"
+    },
+    {
+      "id": "libraries-cultural-programs",
+      "name": "Libraries & Cultural Programs",
+      "amount": 62000000,
+      "fundType": "General",
+      "color": "#a855f7"
+    },
+    {
+      "id": "workforce-development-social-services",
+      "name": "Workforce Development & Social Services",
+      "amount": 185000000,
+      "fundType": "General",
+      "color": "#f97316"
+    },
+    {
+      "id": "general-administration-elections",
+      "name": "General Administration & Elections",
+      "amount": 138000000,
+      "fundType": "General",
+      "color": "#64748b"
+    },
+    {
+      "id": "pension-debt-service",
+      "name": "Pension & Debt Service",
+      "amount": 145000000,
+      "fundType": "Restricted",
+      "color": "#dc2626"
+    }
+  ],
+  "context": {
+    "population": 412000,
+    "perCapita": 9073,
+    "notes": "This is an illustrative budget prepared for the BudgetPlay participatory budgeting simulator and does not represent an actual government publication; all 13 category amounts sum exactly to the stated total of $3,738,000,000."
+  }
+}

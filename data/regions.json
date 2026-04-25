@@ -1,0 +1,10 @@
+[
+  { "id": "tx-capital", "label": "Central Texas (Austin / I-35 corridor)", "shortLabel": "Austin area" },
+  { "id": "tx-dfw", "label": "North Texas (DFW)", "shortLabel": "DFW" },
+  { "id": "tx-houston", "label": "Gulf Coast (Houston area)", "shortLabel": "Houston" },
+  { "id": "tx-san-antonio", "label": "South Central Texas (San Antonio area)", "shortLabel": "San Antonio" },
+  { "id": "tx-other", "label": "Texas — other regions", "shortLabel": "Texas (other)" },
+  { "id": "us-south", "label": "US South (outside Texas)", "shortLabel": "US South" },
+  { "id": "us-other", "label": "United States (other regions)", "shortLabel": "US (other)" },
+  { "id": "intl", "label": "Outside the United States", "shortLabel": "International" }
+]

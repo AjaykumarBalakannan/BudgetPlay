@@ -1,0 +1,16 @@
+{
+  "name": "budgetplay",
+  "version": "0.1.0",
+  "description": "Participatory Budgeting Simulator — Be Mayor for a Day. Built for Track #3: Governance & Accessibility.",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0"
+  }
+}

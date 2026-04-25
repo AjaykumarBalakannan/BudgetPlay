@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BudgetPlay — Be Mayor for a Day</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-900/60 backdrop-blur sticky top-0 z-20">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-slate-900 font-bold text-xl shrink-0">🏛️</div>
+        <div class="min-w-0">
+          <h1 class="text-xl font-bold tracking-tight">BudgetPlay</h1>
+          <p class="text-xs text-slate-400">Be Mayor for a Day · powered by Claude</p>
+        </div>
+      </div>
+      <button id="importPdfBtnMobile" type="button"
+         class="md:hidden shrink-0 px-2 py-1.5 rounded-md border border-emerald-800 text-emerald-300 text-xs font-medium">📄 Import PDF</button>
+      <a href="/insights.html"
+         class="md:hidden shrink-0 px-2 py-1.5 rounded-md border border-cyan-800 text-cyan-300 text-xs font-medium">Gov Pulse</a>
+      <div class="hidden md:flex items-center gap-6 text-sm">
+        <div class="text-right">
+          <div class="text-slate-400 text-xs">CITY</div>
+          <div id="cityName" class="font-semibold">—</div>
+        </div>
+        <div class="text-right">
+          <div class="text-slate-400 text-xs">FISCAL YEAR</div>
+          <div id="fyName" class="font-semibold">—</div>
+        </div>
+        <div class="text-right">
+          <div class="text-slate-400 text-xs">TOTAL BUDGET</div>
+          <div id="totalBudget" class="font-semibold text-amber-400">—</div>
+        </div>
+        <button id="importPdfBtn" type="button"
+                class="px-3 py-1.5 rounded-md border border-emerald-800 bg-emerald-950/40 text-emerald-200 hover:bg-emerald-900/50 text-xs font-medium">
+          📄 Import budget PDF
+        </button>
+        <a href="/insights.html"
+           class="px-3 py-1.5 rounded-md border border-cyan-800 bg-cyan-950/40 text-cyan-200 hover:bg-cyan-900/50 text-xs font-medium">
+          Gov Pulse
+        </a>
+        <button id="resetBtn" class="px-3 py-1.5 rounded-md border border-slate-700 hover:bg-slate-800 text-xs">Reset</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Stats strip -->
+  <section class="max-w-7xl mx-auto px-6 pt-6">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="bg-slate-900 border border-slate-800 rounded-lg p-4">
+        <div class="text-xs text-slate-400">ALLOCATED</div>
+        <div id="statAllocated" class="text-lg font-bold mt-1">$0</div>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-lg p-4">
+        <div class="text-xs text-slate-400">REMAINING</div>
+        <div id="statRemaining" class="text-lg font-bold mt-1 text-amber-400">$0</div>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-lg p-4">
+        <div class="text-xs text-slate-400">CHANGES MADE</div>
+        <div id="statChanges" class="text-lg font-bold mt-1 text-blue-400">0</div>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-lg p-4">
+        <div class="text-xs text-slate-400">PER CAPITA</div>
+        <div id="statPerCapita" class="text-lg font-bold mt-1">$0</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main grid -->
+  <main class="max-w-7xl mx-auto px-6 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- LEFT: Chart + narrative -->
+    <section class="lg:col-span-5 space-y-4">
+
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="font-semibold">Where the money goes</h2>
+          <div class="flex gap-2 text-xs">
+            <button data-chart="doughnut" class="chart-toggle active px-2 py-1 rounded-md bg-slate-800">Pie</button>
+            <button data-chart="bar" class="chart-toggle px-2 py-1 rounded-md bg-slate-800/50">Bar</button>
+          </div>
+        </div>
+        <div class="relative" style="height: 320px;">
+          <canvas id="budgetChart"></canvas>
+        </div>
+        <div class="mt-3 grid grid-cols-2 gap-2 text-xs">
+          <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-emerald-500"></span> General Fund (flexible)</div>
+          <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-slate-500"></span> Restricted Fund</div>
+        </div>
+      </div>
+
+      <div class="bg-gradient-to-br from-amber-950/40 to-slate-900 border border-amber-900/40 rounded-xl p-5">
+        <div class="flex items-center justify-between mb-2 gap-2 flex-wrap">
+          <h3 class="font-semibold flex items-center gap-2">
+            <span class="text-amber-400">✨</span> Claude's Impact Report
+            <span class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-normal">Draft analysis</span>
+          </h3>
+          <span id="narrativeStatus" class="text-xs text-slate-400">idle</span>
+        </div>
+        <p id="narrative" class="text-sm leading-relaxed text-slate-300">
+          Move any slider — Claude will analyze the tradeoffs in real time. <strong class="text-slate-200">This is just a preview;</strong> nothing is submitted until you cast your vote.
+        </p>
+      </div>
+
+      <p class="text-xs text-slate-500">
+        When you're ready, pick your region and submit using the bar at the bottom of the page. Your vote groups with neighbors on the <a href="/insights.html" class="text-cyan-400 hover:underline">Government Pulse</a> dashboard.
+      </p>
+    </section>
+
+    <!-- RIGHT: Sliders -->
+    <section class="lg:col-span-7">
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-semibold">Reallocate the budget</h2>
+          <div class="text-xs text-slate-400">Drag sliders · changes auto-balance · funds shown as % of total</div>
+        </div>
+        <div id="sliders" class="space-y-3"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Sticky Submit Bar — always visible -->
+  <div class="sticky bottom-0 z-30 bg-slate-900/95 backdrop-blur border-t border-amber-900/40 shadow-[0_-8px_24px_rgba(0,0,0,0.4)]">
+    <div class="max-w-7xl mx-auto px-6 py-3">
+      <div class="flex flex-wrap items-end gap-3">
+        <div class="flex-1 min-w-[200px]">
+          <label for="regionSelect" class="text-[11px] text-slate-400 uppercase tracking-wide block">Your region</label>
+          <select id="regionSelect"
+                  class="mt-1 w-full rounded-lg bg-slate-950 border border-slate-700 text-sm px-3 py-2 text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/50">
+          </select>
+        </div>
+        <div class="hidden sm:flex flex-col items-start max-w-xs">
+          <span id="draftBadge" class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-medium">No changes yet</span>
+          <span class="text-[11px] text-slate-500 leading-tight mt-1">Sliders are <strong class="text-slate-300">draft</strong>. Nothing is recorded until you click Cast Vote.</span>
+        </div>
+        <button id="submitBtn"
+                class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-900 font-bold px-5 py-2.5 rounded-lg shadow-lg transition disabled:opacity-50 whitespace-nowrap">
+          🗳️ Cast My Vote
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cast Vote Confirmation Modal -->
+  <div id="confirmModal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+    <div class="bg-slate-900 border border-amber-700/50 rounded-2xl max-w-md w-full">
+      <div class="p-5 border-b border-slate-800">
+        <h2 class="text-lg font-bold flex items-center gap-2">🗳️ Cast your vote?</h2>
+        <p class="text-xs text-slate-400 mt-1">Your reallocation will be saved and aggregated by region.</p>
+      </div>
+      <div class="p-5 space-y-3">
+        <div class="text-sm">
+          <div class="text-slate-400 text-xs uppercase tracking-wide">Region</div>
+          <div id="confirmRegion" class="font-medium mt-0.5">—</div>
+        </div>
+        <div class="text-sm">
+          <div class="text-slate-400 text-xs uppercase tracking-wide">Reallocations</div>
+          <div id="confirmChanges" class="text-xs text-slate-300 leading-relaxed font-mono mt-1 max-h-40 overflow-y-auto bg-slate-950 border border-slate-800 rounded p-2"></div>
+        </div>
+        <p class="text-xs text-slate-500 leading-relaxed">
+          You can submit one vote per device every 8 seconds. Submitting again with new changes will count as a separate signal.
+        </p>
+      </div>
+      <div class="p-5 border-t border-slate-800 flex justify-end gap-2">
+        <button id="confirmCancel" type="button" class="px-4 py-2 rounded-lg border border-slate-700 hover:bg-slate-800 text-sm">Keep editing</button>
+        <button id="confirmYes" type="button" class="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold text-sm">Yes, cast my vote</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PDF Import Modal -->
+  <div id="pdfModal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+    <div class="bg-slate-900 border border-emerald-700/50 rounded-2xl max-w-lg w-full">
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-bold flex items-center gap-2">📄 Import a city budget PDF</h2>
+          <p class="text-xs text-slate-400 mt-1">Claude will read the PDF and extract categories, fund types, and totals.</p>
+        </div>
+        <button id="pdfModalClose" class="text-slate-400 hover:text-white text-2xl leading-none">&times;</button>
+      </div>
+      <div class="p-5 space-y-3">
+        <input type="file" id="pdfFileInput" accept="application/pdf"
+               class="block w-full text-sm text-slate-300 file:mr-3 file:py-2 file:px-3 file:rounded file:border-0 file:bg-emerald-700 file:text-white file:font-medium file:cursor-pointer hover:file:bg-emerald-600" />
+        <p class="text-xs text-slate-500 leading-relaxed">
+          <strong class="text-amber-400">Heads up:</strong> Importing a new budget archives existing submissions (because category IDs change). The simulator instantly retargets to the new city.
+        </p>
+        <div id="pdfStatus" class="text-xs text-slate-400 hidden"></div>
+      </div>
+      <div class="p-5 border-t border-slate-800 flex justify-end gap-2">
+        <button id="pdfCancelBtn" type="button" class="px-4 py-2 rounded-lg border border-slate-700 hover:bg-slate-800 text-sm">Cancel</button>
+        <button id="pdfImportGo" type="button" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm disabled:opacity-50">Extract with Claude</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Community Heatmap Modal -->
+  <div id="modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-3xl w-full max-h-[85vh] overflow-y-auto">
+      <div class="p-6 border-b border-slate-800 flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold">🌡️ Community's Choice</h2>
+          <p class="text-sm text-slate-400">How citizens are reallocating vs. the official budget</p>
+        </div>
+        <button id="closeModal" class="text-slate-400 hover:text-white text-2xl leading-none">&times;</button>
+      </div>
+      <div class="p-6">
+        <div id="communityCount" class="text-sm text-slate-400 mb-4"></div>
+        <div id="communityHeatmap" class="space-y-2"></div>
+
+        <!-- Civic letter section -->
+        <div class="mt-6 pt-6 border-t border-slate-800">
+          <div class="flex items-start justify-between gap-3 mb-3">
+            <div>
+              <h3 class="font-semibold text-base flex items-center gap-2">
+                <span class="text-amber-400">✉️</span> Send your voice to your council member
+              </h3>
+              <p class="text-xs text-slate-400 mt-1">Claude turns your reallocation into a personalized letter you can edit and send.</p>
+            </div>
+            <button id="generateLetterBtn"
+                    class="shrink-0 px-3 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-900 text-xs font-bold transition disabled:opacity-50">
+              Generate letter
+            </button>
+          </div>
+          <div id="letterStatus" class="text-xs text-slate-500 mb-2 hidden">drafting…</div>
+          <textarea id="letterText"
+                    rows="12"
+                    placeholder="Click 'Generate letter' to have Claude draft a council letter based on your reallocation."
+                    class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-sm font-mono text-slate-200 leading-relaxed focus:outline-none focus:ring-2 focus:ring-amber-500/40 hidden"></textarea>
+          <div id="letterActions" class="flex flex-wrap gap-2 mt-3 hidden">
+            <button id="copyLetterBtn"
+                    class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs">
+              📋 Copy
+            </button>
+            <a id="emailLetterLink" href="#"
+               class="px-3 py-2 rounded-lg bg-cyan-700 hover:bg-cyan-600 text-white text-xs font-medium">
+              📧 Open in email
+            </a>
+            <button id="regenLetterBtn"
+                    class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs">
+              🔄 Re-draft
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="max-w-7xl mx-auto px-6 py-8 text-xs text-slate-500 text-center">
+    Built for Anthropic Hackathon · Track #3: Governance & Accessibility · Data is illustrative ·
+    <a href="/insights.html" class="text-cyan-600 hover:underline">Regional insights for government</a>
+  </footer>
+
+  <script src="app.js" type="module"></script>
+</body>
+</html>
